@@ -14,7 +14,7 @@ void rtu_memory_clear(rtu_memory_t *rtu_memory)
 void rtu_memory_init(rtu_memory_t *rtu_memory)
 {
     rtu_memory->fields.size = sizeof(rtu_memory_t);
-    rtu_memory->fields.reserved = UINT8_C(0x7);
+    rtu_memory->fields.reserved = UINT8_C(0x3);
     rtu_memory->fields.strip_fx = FX_NONE;
 	/* 16MHz / 64 = 1MHz / 4 = 250kHz === 4us
 	 * 16bit x 4us = 262144us = 262ms

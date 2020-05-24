@@ -19,15 +19,16 @@ CFLAGS += \
 
 TARGET = sol
 CSRCS = \
-		../hw.c \
 		../drv/spi0.c \
 		../drv/tlog.c \
 		../drv/tmr0.c \
 		../drv/tmr1.c \
 		../drv/tmr2.c \
 		../drv/usart0.c \
+		../hw.c \
 		../modbus-c/crc.c \
 		../modbus-c/rtu.c \
+		../ws2812b/fire.c \
 		../ws2812b/fx.c \
 		../ws2812b/rgb.c \
 		../ws2812b/ws2812b.c \

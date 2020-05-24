@@ -63,8 +63,7 @@ void fx_static(ws2812b_strip_t *strip)
 static inline
 void fx_fire(ws2812b_strip_t *strip)
 {
-    heat_map_update(&strip->heat_map);
-    rgb_map_update(&strip->rgb_map, &strip->heat_map);
+    fx_calc_fire(&strip->rgb_map, &strip->heat_map);
     ws2812b_update(strip);
 }
 /*-----------------------------------------------------------------------------*/
