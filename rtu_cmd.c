@@ -27,11 +27,14 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
         {
             .rgb_map =
             {
-                .stride = STRIP_STRIDE,
-                .width = STRIP_WIDTH,
-                .height = STRIP_HEIGHT,
-                .size = STRIP_SIZE,
-                .led = rtu_memory->fields.led_data,
+                .header =
+                    (map_header_t)
+                    {
+                        .stride = STRIP_STRIDE,
+                        .width = STRIP_WIDTH,
+                        .height = STRIP_HEIGHT,
+                    },
+                .rgb = rtu_memory->fields.rgb_data,
                 .brightness = 0xFF,
                 .color_correction =
                     (rgb_t)
@@ -48,16 +51,23 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
                         .B = VALUE_B(TEMP_CORRECTION_None)
                     },
             },
-            .heat_map =
+            .rgb_idx = 0,
+            .rgb_size = STRIP_SIZE * sizeof(rgb_t),
+            .fx_data_map =
             {
-                .stride = STRIP_STRIDE,
-                .width = STRIP_WIDTH,
-                .height = STRIP_HEIGHT,
-                .size = STRIP_SIZE,
-                .data = rtu_memory->fields.heat_data
+                .data_map =
+                    (data_map_t)
+                    {
+                        .header =
+                            (map_header_t)
+                            {
+                                .stride = STRIP_STRIDE,
+                                .width = STRIP_WIDTH,
+                                .height = STRIP_HEIGHT,
+                            },
+                        .data = &rtu_memory->fields.fx_data
+                    }
             },
-            .idx = 0,
-            .size = STRIP_SIZE * 3,
             .flags =
                 (ws2812b_flags_t)
                 {

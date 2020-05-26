@@ -1,7 +1,8 @@
 #pragma once
 
-#include <modbus-c/rtu.h>
+#include <stddef.h>
 
+#include <modbus-c/rtu.h>
 #include <ws2812b/rgb.h>
 #include <ws2812b/ws2812b.h>
 
@@ -11,8 +12,17 @@
 
 #define RTU_CMD_ADDR_BASE UINT16_C(0x1000)
 
+typedef union
+{
+    fire_heat_t fire_heat[STRIP_SIZE]; // 1 * STRIP_SIZE
+    torch_energy_t torch_energy[STRIP_SIZE]; // 2 * STRIP_SIZE
+} fx_data_t; // 2 * STRIP_SIZE
+
+STATIC_ASSERT(sizeof(fx_data_t) == 2 * STRIP_SIZE);
+
 typedef struct
 {
+    // 0
     uint16_t size;
     // 2
     struct
@@ -22,18 +32,23 @@ typedef struct
         uint8_t reserved : 2;
         uint8_t strip_fx : 4;
     };
-
     // 3
     uint16_t tmr1_A;
     // 5
-    uint8_t heat_data[STRIP_SIZE];
-    // 125 (5 + STRIP_SIZE)
-    rgb_t led_data[STRIP_SIZE];
-    // 485 (5 + STRIP_SIZE + 3 * STRIP_SIZE)
+    rgb_t rgb_data[STRIP_SIZE];
+    // 365 == (5 + (STRIP_SIZE * 3) = 5 + 360)
+    fx_data_t fx_data;
+    // 605 == (365 + (STRIP_SIZE * 2) = 365 + 240)
     ws2812b_strip_t ws2812b_strip;
-    // 509
+    // 627 == 605 + 22
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
+
+
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, 5);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 365);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 605);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 627);
 
 typedef union
 {
