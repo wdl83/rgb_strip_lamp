@@ -66,6 +66,13 @@ void fx_fire(ws2812b_strip_t *strip)
     fx_calc_fire(&strip->rgb_map, &strip->fx_data_map.data_map);
     ws2812b_update(strip);
 }
+
+static inline
+void fx_torch(ws2812b_strip_t *strip)
+{
+    fx_calc_torch(&strip->rgb_map, &strip->fx_data_map.data_map);
+    ws2812b_update(strip);
+}
 /*-----------------------------------------------------------------------------*/
 void suspend(uintptr_t user_data)
 {
@@ -118,6 +125,7 @@ void dispatch_interruptible(rtu_memory_t *rtu_memory)
     if(FX_NONE == strip->flags.fx) fx_none(strip);
     else if(FX_STATIC == strip->flags.fx) fx_static(strip);
     else if(FX_FIRE == strip->flags.fx) fx_fire(strip);
+    else if(FX_TORCH == strip->flags.fx) fx_torch(strip);
 }
 /*-----------------------------------------------------------------------------*/
 void main(void)
