@@ -39,16 +39,16 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
                 .color_correction =
                     (rgb_t)
                     {
-                        .R = VALUE_R(COLOR_CORRECTION_None),
-                        .G = VALUE_G(COLOR_CORRECTION_None),
-                        .B = VALUE_B(COLOR_CORRECTION_None)
+                        .R = VALUE_R(COLOR_CORRECTION_5050),
+                        .G = VALUE_G(COLOR_CORRECTION_5050),
+                        .B = VALUE_B(COLOR_CORRECTION_5050)
                     },
                 .temp_correction =
                     (rgb_t)
                     {
-                        .R = VALUE_R(TEMP_CORRECTION_None),
-                        .G = VALUE_G(TEMP_CORRECTION_None),
-                        .B = VALUE_B(TEMP_CORRECTION_None)
+                        .R = VALUE_R(TEMP_CORRECTION_Tungsten100W),
+                        .G = VALUE_G(TEMP_CORRECTION_Tungsten100W),
+                        .B = VALUE_B(TEMP_CORRECTION_Tungsten100W)
                     },
             },
             .rgb_idx = 0,

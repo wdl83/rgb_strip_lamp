@@ -104,13 +104,15 @@ void dispatch_uninterruptible(rtu_memory_t *rtu_memory)
     if(rtu_memory->fields.strip_fx != strip->flags.fx)
     {
         strip->flags.fx = rtu_memory->fields.strip_fx;
-        if(FX_NONE == strip->flags.fx) ws2812b_clear(strip);
     }
 
     if(rtu_memory->fields.strip_refresh)
     {
+        if(FX_NONE == strip->flags.fx) ws2812b_clear(strip);
+        else if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
+
         rtu_memory->fields.strip_refresh = 0;
-        ws2812b_update(strip);
+        strip->flags.updated = 1;
     }
 }
 
