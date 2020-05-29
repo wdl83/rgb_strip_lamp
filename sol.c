@@ -16,6 +16,19 @@
 
 /*-----------------------------------------------------------------------------*/
 static
+void cyclic_tmr_cb(uintptr_t user_data)
+{
+    rtu_memory_t *rtu_memory = (rtu_memory_t *)user_data;
+    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+
+    if(!strip->flags.abort && strip->flags.updated)
+    {
+        strip->flags.updated = 0;
+        strip->flags.update = 1;
+    }
+}
+
+static
 void cyclic_tmr_start(rtu_memory_t *rtu_memory, timer_cb_t cb)
 {
     timer1_cb(cb, (uintptr_t)rtu_memory);
@@ -36,16 +49,12 @@ void cyclic_tmr_stop(void)
 }
 
 static
-void cyclic_tmr_cb(uintptr_t user_data)
+void cyclic_tmr_update(rtu_memory_t *rtu_memory)
 {
-    rtu_memory_t *rtu_memory = (rtu_memory_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    if(rtu_memory->fields.tmr1_A == TMR1_RD16_A()) return;
 
-    if(!strip->flags.abort && strip->flags.updated)
-    {
-        strip->flags.updated = 0;
-        strip->flags.update = 1;
-    }
+    cyclic_tmr_stop();
+    cyclic_tmr_start(rtu_memory, cyclic_tmr_cb);
 }
 /*-----------------------------------------------------------------------------*/
 static inline
@@ -98,6 +107,8 @@ void dispatch_uninterruptible(rtu_memory_t *rtu_memory)
 {
     if(!rtu_memory->fields.strip_updated) return;
     else rtu_memory->fields.strip_updated = 0;
+
+    cyclic_tmr_update(rtu_memory);
 
     ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
 

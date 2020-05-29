@@ -18,8 +18,9 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
     rtu_memory->fields.strip_fx = FX_NONE;
 	/* 16MHz / 64 = 1MHz / 4 = 250kHz === 4us
 	 * 16bit x 4us = 262144us = 262ms
-	 * 30fps === 33ms / 4us = 8333
-	 * 60fps === 16,7ms / 4us = 4167 */
+	 * 30fps === 33333us / 4us = 8333
+	 * 60fps === 16666us / 4us = 4167
+     * 120fps === 8333us / 4us = 2083 */
     rtu_memory->fields.tmr1_A = 4167;
 
     rtu_memory->fields.ws2812b_strip =

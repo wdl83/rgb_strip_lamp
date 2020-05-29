@@ -61,6 +61,7 @@ typedef struct
 } rtu_memory_fields_t;
 
 
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tmr1_A, 3);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, 5);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 389);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 365);
