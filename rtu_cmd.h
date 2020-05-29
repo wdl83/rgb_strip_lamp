@@ -15,10 +15,24 @@
 typedef union
 {
     fire_heat_t fire_heat[STRIP_SIZE]; // 1 * STRIP_SIZE
-    torch_energy_t torch_energy[STRIP_SIZE]; // 2 * STRIP_SIZE
-} fx_data_t; // 2 * STRIP_SIZE
+    torch_energy_t torch_energy[STRIP_SIZE]; // 1 * STRIP_SIZE
+} fx_data_t; // 1 * STRIP_SIZE
 
-STATIC_ASSERT(sizeof(fx_data_t) == 2 * STRIP_SIZE);
+STATIC_ASSERT(sizeof(fx_data_t) == 1 * STRIP_SIZE);
+
+typedef union
+{
+    fire_param_t fire_param; // 1
+    union
+    {
+        torch_param_t torch_param; // 7
+        /* extends torch param to account for mode data for each STRIP element
+         * (2bits per element) */
+        uint8_t torch_param_mode[sizeof(torch_param_t) + (STRIP_SIZE >> 2)];
+    }; // 7 + 120/4 = 37
+} fx_param_t; // 37
+
+STATIC_ASSERT(sizeof(fx_param_t) == 37);
 
 typedef struct
 {
@@ -37,18 +51,20 @@ typedef struct
     // 5
     rgb_t rgb_data[STRIP_SIZE];
     // 365 == (5 + (STRIP_SIZE * 3) = 5 + 360)
-    fx_data_t fx_data;
-    // 605 == (365 + (STRIP_SIZE * 2) = 365 + 240)
     ws2812b_strip_t ws2812b_strip;
-    // 627 == 605 + 22
+    // 389 == (365 + 24 = 389)
+    fx_data_t fx_data;
+    // 509 == (389 + (STRIP_SIZE * 1) = 509)
+    fx_param_t fx_param;
+    // 546 = (509 + 37) = 546
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
 
 
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, 5);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 365);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 605);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 627);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 389);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 365);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 546);
 
 typedef union
 {

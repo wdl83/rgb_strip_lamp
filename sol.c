@@ -104,6 +104,7 @@ void dispatch_uninterruptible(rtu_memory_t *rtu_memory)
     if(rtu_memory->fields.strip_fx != strip->flags.fx)
     {
         strip->flags.fx = rtu_memory->fields.strip_fx;
+        if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map.data_map);
     }
 
     if(rtu_memory->fields.strip_refresh)

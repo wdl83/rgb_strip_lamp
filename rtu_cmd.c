@@ -65,7 +65,8 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
                                 .width = STRIP_WIDTH,
                                 .height = STRIP_HEIGHT,
                             },
-                        .data = &rtu_memory->fields.fx_data
+                        .data = &rtu_memory->fields.fx_data,
+                        .param = &rtu_memory->fields.fx_param
                     }
             },
             .flags =
