@@ -51,6 +51,7 @@ void rtu_memory_init(rtu_memory_t *rtu_memory)
                         .G = VALUE_G(TEMP_CORRECTION_Tungsten100W),
                         .B = VALUE_B(TEMP_CORRECTION_Tungsten100W)
                     },
+                .palette_id = (palette_id_t){.value = PALETTE_ID_INVALID}
             },
             .rgb_idx = 0,
             .rgb_size = STRIP_SIZE * sizeof(rgb_t),

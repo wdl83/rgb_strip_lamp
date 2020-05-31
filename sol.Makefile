@@ -30,6 +30,7 @@ CSRCS = \
 		../modbus-c/rtu.c \
 		../ws2812b/fire.c \
 		../ws2812b/fx.c \
+		../ws2812b/palette.c \
 		../ws2812b/rgb.c \
 		../ws2812b/torch.c \
 		../ws2812b/ws2812b.c \

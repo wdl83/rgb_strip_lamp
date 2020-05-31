@@ -52,20 +52,20 @@ typedef struct
     rgb_t rgb_data[STRIP_SIZE];
     // 365 == (5 + (STRIP_SIZE * 3) = 5 + 360)
     ws2812b_strip_t ws2812b_strip;
-    // 389 == (365 + 24 = 389)
+    // 390 == (365 + 25 = 390)
     fx_data_t fx_data;
-    // 509 == (389 + (STRIP_SIZE * 1) = 509)
+    // 510 == (390 + (STRIP_SIZE * 1) = 510)
     fx_param_t fx_param;
-    // 546 = (509 + 37) = 546
+    // 547 = (510 + 37) = 547
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
 
 
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tmr1_A, 3);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, 5);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 389);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 365);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 546);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 390);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 547);
 
 typedef union
 {
