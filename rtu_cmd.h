@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include <modbus-c/rtu.h>
+#include <modbus-c/rtu_memory.h>
 #include <ws2812b/rgb.h>
 #include <ws2812b/ws2812b.h>
 
@@ -10,7 +11,9 @@
 #error "Please define RTU_ADDR"
 #endif
 
-#define RTU_CMD_ADDR_BASE UINT16_C(0x1000)
+#ifndef RTU_ADDR_BASE
+#error "Please define RTU_ADDR_BASE"
+#endif
 
 typedef union
 {
@@ -36,6 +39,7 @@ STATIC_ASSERT(sizeof(fx_param_t) == 39);
 
 typedef struct
 {
+    rtu_memory_t rtu_memory;
     // 0
     uint16_t size;
     // 2
@@ -61,21 +65,15 @@ typedef struct
 } rtu_memory_fields_t;
 
 
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tmr1_A, 3);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, 5);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, 365);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, 390);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, 510);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, 549);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tmr1_A, sizeof(rtu_memory_t) + 3);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, sizeof(rtu_memory_t) + 5);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, sizeof(rtu_memory_t) + 365);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, sizeof(rtu_memory_t) + 390);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, sizeof(rtu_memory_t) + 510);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 549);
 
-typedef union
-{
-    rtu_memory_fields_t fields;
-    uint8_t data[sizeof(rtu_memory_fields_t)];
-} rtu_memory_t;
-
-void rtu_memory_clear(rtu_memory_t *);
-void rtu_memory_init(rtu_memory_t *);
+void rtu_memory_fields_clear(rtu_memory_fields_t *);
+void rtu_memory_fields_init(rtu_memory_fields_t *);
 
 uint8_t *rtu_pdu_cb(
     modbus_rtu_state_t *state,

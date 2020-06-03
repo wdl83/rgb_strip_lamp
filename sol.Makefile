@@ -10,6 +10,7 @@ include ../Makefile.defs
 # -DUSART_DBG_CNTRS
 CFLAGS += \
 		  -DRTU_ADDR=128 \
+		  -DRTU_ADDR_BASE=0x1000 \
 		  -DSTRIP_HEIGHT=20 \
 		  -DSTRIP_STRIDE=6 \
 		  -DSTRIP_WIDTH=6 \
@@ -28,6 +29,7 @@ CSRCS = \
 		../hw.c \
 		../modbus-c/crc.c \
 		../modbus-c/rtu.c \
+		../modbus-c/rtu_memory.c \
 		../ws2812b/fire.c \
 		../ws2812b/fx.c \
 		../ws2812b/palette.c \

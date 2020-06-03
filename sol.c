@@ -18,8 +18,8 @@
 static
 void cyclic_tmr_cb(uintptr_t user_data)
 {
-    rtu_memory_t *rtu_memory = (rtu_memory_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
     if(!strip->flags.abort && strip->flags.updated)
     {
@@ -29,11 +29,11 @@ void cyclic_tmr_cb(uintptr_t user_data)
 }
 
 static
-void cyclic_tmr_start(rtu_memory_t *rtu_memory, timer_cb_t cb)
+void cyclic_tmr_start(rtu_memory_fields_t *rtu_memory_fields, timer_cb_t cb)
 {
-    timer1_cb(cb, (uintptr_t)rtu_memory);
+    timer1_cb(cb, (uintptr_t)rtu_memory_fields);
     TMR1_MODE_CTC();
-    TMR1_WR16_A(rtu_memory->fields.tmr1_A);
+    TMR1_WR16_A(rtu_memory_fields->tmr1_A);
     TMR1_WR16_CNTR(0);
     TMR1_A_INT_ENABLE();
     TMR1_CLK_DIV_64();
@@ -49,12 +49,12 @@ void cyclic_tmr_stop(void)
 }
 
 static
-void cyclic_tmr_update(rtu_memory_t *rtu_memory)
+void cyclic_tmr_update(rtu_memory_fields_t *rtu_memory_fields)
 {
-    if(rtu_memory->fields.tmr1_A == TMR1_RD16_A()) return;
+    if(rtu_memory_fields->tmr1_A == TMR1_RD16_A()) return;
 
     cyclic_tmr_stop();
-    cyclic_tmr_start(rtu_memory, cyclic_tmr_cb);
+    cyclic_tmr_start(rtu_memory_fields, cyclic_tmr_cb);
 }
 /*-----------------------------------------------------------------------------*/
 static inline
@@ -87,51 +87,51 @@ void suspend(uintptr_t user_data)
 {
     /* suspend ws2812b strip update - as this is the only heavy duty task
      * cyclic time can keep running */
-    rtu_memory_t *rtu_memory = (rtu_memory_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
     strip->flags.abort = 1;
 }
 
 void resume(uintptr_t user_data)
 {
-    rtu_memory_t *rtu_memory = (rtu_memory_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
     if(strip->flags.aborted) ws2812b_update(strip);
     else if(strip->flags.abort) strip->flags.abort = 0;
 }
 /*-----------------------------------------------------------------------------*/
 static
-void dispatch_uninterruptible(rtu_memory_t *rtu_memory)
+void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
 {
-    if(!rtu_memory->fields.strip_updated) return;
-    else rtu_memory->fields.strip_updated = 0;
+    if(!rtu_memory_fields->strip_updated) return;
+    else rtu_memory_fields->strip_updated = 0;
 
-    cyclic_tmr_update(rtu_memory);
+    cyclic_tmr_update(rtu_memory_fields);
 
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
-    if(rtu_memory->fields.strip_fx != strip->flags.fx)
+    if(rtu_memory_fields->strip_fx != strip->flags.fx)
     {
-        strip->flags.fx = rtu_memory->fields.strip_fx;
+        strip->flags.fx = rtu_memory_fields->strip_fx;
         if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map.data_map);
     }
 
-    if(rtu_memory->fields.strip_refresh)
+    if(rtu_memory_fields->strip_refresh)
     {
         if(FX_NONE == strip->flags.fx) ws2812b_clear(strip);
         else if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
 
-        rtu_memory->fields.strip_refresh = 0;
+        rtu_memory_fields->strip_refresh = 0;
         strip->flags.updated = 1;
     }
 }
 
 static
-void dispatch_interruptible(rtu_memory_t *rtu_memory)
+void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
 {
-    ws2812b_strip_t *strip = &rtu_memory->fields.ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
     if(!strip->flags.update) return;
     else strip->flags.update = 0;
@@ -144,15 +144,15 @@ void dispatch_interruptible(rtu_memory_t *rtu_memory)
 /*-----------------------------------------------------------------------------*/
 void main(void)
 {
-    rtu_memory_t rtu_memory;
+    rtu_memory_fields_t rtu_memory_fields;
     modbus_rtu_state_t state;
 
-    rtu_memory_clear(&rtu_memory);
-    rtu_memory_init(&rtu_memory);
-    tlog_init(rtu_memory.fields.tlog);
-    ws2812b_init(&rtu_memory.fields.ws2812b_strip);
-    modbus_rtu_impl(&state, suspend, resume, (uintptr_t)&rtu_memory);
-    cyclic_tmr_start(&rtu_memory, cyclic_tmr_cb);
+    rtu_memory_fields_clear(&rtu_memory_fields);
+    rtu_memory_fields_init(&rtu_memory_fields);
+    tlog_init(rtu_memory_fields.tlog);
+    ws2812b_init(&rtu_memory_fields.ws2812b_strip);
+    modbus_rtu_impl(&state, suspend, resume, (uintptr_t)&rtu_memory_fields);
+    cyclic_tmr_start(&rtu_memory_fields, cyclic_tmr_cb);
 
     /* set SMCR SE (Sleep Enable bit) */
     sleep_enable();
@@ -162,9 +162,9 @@ void main(void)
         cli(); // disable interrupts
         modbus_rtu_event(&state);
         const bool is_idle = modbus_rtu_idle(&state);
-        if(is_idle) dispatch_uninterruptible(&rtu_memory);
+        if(is_idle) dispatch_uninterruptible(&rtu_memory_fields);
         sei(); // enabled interrupts
-        if(is_idle) dispatch_interruptible(&rtu_memory);
+        if(is_idle) dispatch_interruptible(&rtu_memory_fields);
         sleep_cpu();
     }
 }
