@@ -27,6 +27,7 @@ CSRCS = \
 		../drv/tmr2.c \
 		../drv/usart0.c \
 		../hw.c \
+		../modbus-c/atmega328p/rtu_impl.c \
 		../modbus-c/crc.c \
 		../modbus-c/rtu.c \
 		../modbus-c/rtu_memory.c \
@@ -37,7 +38,6 @@ CSRCS = \
 		../ws2812b/torch.c \
 		../ws2812b/ws2812b.c \
 		rtu_cmd.c \
-		rtu_impl.c \
 		sol.c 
 
 include ../Makefile.rules

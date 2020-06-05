@@ -8,11 +8,11 @@
 #include <drv/tmr2.h>
 
 #include <modbus-c/rtu.h>
+#include <modbus-c/atmega328p/rtu_impl.h>
 
 #include <ws2812b/ws2812b.h>
 
 #include "rtu_cmd.h"
-#include "rtu_impl.h"
 
 /*-----------------------------------------------------------------------------*/
 static
@@ -151,7 +151,11 @@ void main(void)
     rtu_memory_fields_init(&rtu_memory_fields);
     tlog_init(rtu_memory_fields.tlog);
     ws2812b_init(&rtu_memory_fields.ws2812b_strip);
-    modbus_rtu_impl(&state, suspend, resume, (uintptr_t)&rtu_memory_fields);
+    modbus_rtu_impl(
+        &state,
+        suspend, resume,
+        rtu_pdu_cb,
+        (uintptr_t)&rtu_memory_fields);
     cyclic_tmr_start(&rtu_memory_fields, cyclic_tmr_cb);
 
     /* set SMCR SE (Sleep Enable bit) */
