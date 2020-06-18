@@ -40,4 +40,10 @@ CSRCS = \
 		rtu_cmd.c \
 		sol.c 
 
+ifdef RELEASE
+	CFLAGS +=  \
+		-DASSERT_DISABLE
+else
+endif
+
 include ../Makefile.rules
