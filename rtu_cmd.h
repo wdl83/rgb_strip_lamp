@@ -7,8 +7,8 @@
 #include <ws2812b/rgb.h>
 #include <ws2812b/ws2812b.h>
 
-#ifndef RTU_ADDR
-#error "Please define RTU_ADDR"
+#ifndef EEPROM_ADDR_RTU_ADDR
+#error "Please define EEPROM_ADDR_RTU_ADDR"
 #endif
 
 #ifndef RTU_ADDR_BASE

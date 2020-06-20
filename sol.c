@@ -1,3 +1,4 @@
+#include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 
@@ -153,6 +154,7 @@ void main(void)
     ws2812b_init(&rtu_memory_fields.ws2812b_strip);
     modbus_rtu_impl(
         &state,
+        eeprom_read_byte((const uint8_t *)EEPROM_ADDR_RTU_ADDR),
         suspend, resume,
         rtu_pdu_cb,
         (uintptr_t)&rtu_memory_fields);

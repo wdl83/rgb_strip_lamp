@@ -9,7 +9,7 @@ include ../Makefile.defs
 
 # -DUSART_DBG_CNTRS
 CFLAGS += \
-		  -DRTU_ADDR=128 \
+		  -DEEPROM_ADDR_RTU_ADDR=0x0 \
 		  -DRTU_ADDR_BASE=0x1000 \
 		  -DSTRIP_HEIGHT=20 \
 		  -DSTRIP_STRIDE=6 \
