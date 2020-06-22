@@ -7,6 +7,7 @@
 #include <drv/tlog.h>
 #include <drv/tmr1.h>
 #include <drv/tmr2.h>
+#include <drv/watchdog.h>
 
 #include <modbus-c/rtu.h>
 #include <modbus-c/atmega328p/rtu_impl.h>
@@ -104,13 +105,23 @@ void resume(uintptr_t user_data)
 }
 /*-----------------------------------------------------------------------------*/
 static
-void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
+void handle_reboot(rtu_memory_fields_t *rtu_memory_fields)
+{
+    if(!rtu_memory_fields->reboot) return;
+
+    rtu_memory_fields->reboot = 0;
+    watchdog_enable(WATCHDOG_TIMEOUT_250ms);
+    sei(); /* USART0 async transmission in progress - Modbus reply */
+    for(;;) {/* wait until reset */}
+}
+
+static
+void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(!rtu_memory_fields->strip_updated) return;
-    else rtu_memory_fields->strip_updated = 0;
 
+    rtu_memory_fields->strip_updated = 0;
     cyclic_tmr_update(rtu_memory_fields);
-
     ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
     if(rtu_memory_fields->strip_fx != strip->flags.fx)
@@ -127,6 +138,13 @@ void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
         rtu_memory_fields->strip_refresh = 0;
         strip->flags.updated = 1;
     }
+}
+
+static
+void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
+{
+    handle_strip(rtu_memory_fields);
+    handle_reboot(rtu_memory_fields);
 }
 
 static

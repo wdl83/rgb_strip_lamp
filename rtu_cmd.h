@@ -47,7 +47,8 @@ typedef struct
     {
         uint8_t strip_updated : 1; // LSB
         uint8_t strip_refresh : 1;
-        uint8_t reserved : 2;
+        uint8_t : 1;
+        uint8_t reboot : 1;
         uint8_t strip_fx : 4;
     };
     // 3
