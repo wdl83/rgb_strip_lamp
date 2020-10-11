@@ -26,6 +26,7 @@ CSRCS = \
 		../drv/tmr1.c \
 		../drv/tmr2.c \
 		../drv/usart0.c \
+		../drv/util.c \
 		../hw.c \
 		../modbus-c/atmega328p/rtu_impl.c \
 		../modbus-c/crc.c \
@@ -37,6 +38,7 @@ CSRCS = \
 		../ws2812b/rgb.c \
 		../ws2812b/torch.c \
 		../ws2812b/ws2812b.c \
+		panic.c \
 		rtu_cmd.c \
 		sol.c 
 

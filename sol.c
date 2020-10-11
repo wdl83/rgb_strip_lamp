@@ -127,6 +127,8 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
     if(rtu_memory_fields->strip_fx != strip->flags.fx)
     {
         strip->flags.fx = rtu_memory_fields->strip_fx;
+        if(FX_NONE == strip->flags.fx) ws2812b_power_off(strip);
+        else ws2812b_power_on(strip);
         if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map.data_map);
     }
 

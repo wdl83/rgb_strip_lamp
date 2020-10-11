@@ -97,7 +97,7 @@ uint8_t *rtu_pdu_cb(
 {
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
 
-    TLOG_PRINTF("S%02" PRIX8 " F%02" PRIX8, addr, fcode);
+    TLOG_XPRINT8("SF", ((uint16_t)addr << 8) | fcode);
 
     if(modbus_rtu_addr(state) != addr) goto exit;
 
