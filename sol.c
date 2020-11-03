@@ -9,10 +9,10 @@
 #include <drv/tmr2.h>
 #include <drv/watchdog.h>
 
-#include <modbus-c/rtu.h>
-#include <modbus-c/atmega328p/rtu_impl.h>
+#include <modbus_c/rtu.h>
+#include <modbus_c/atmega328p/rtu_impl.h>
 
-#include <ws2812b/ws2812b.h>
+#include <ws2812b_strip/ws2812b.h>
 
 #include "rtu_cmd.h"
 

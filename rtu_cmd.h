@@ -2,10 +2,10 @@
 
 #include <stddef.h>
 
-#include <modbus-c/rtu.h>
-#include <modbus-c/rtu_memory.h>
-#include <ws2812b/rgb.h>
-#include <ws2812b/ws2812b.h>
+#include <modbus_c/rtu.h>
+#include <modbus_c/rtu_memory.h>
+#include <ws2812b_strip/rgb.h>
+#include <ws2812b_strip/ws2812b.h>
 
 #ifndef EEPROM_ADDR_RTU_ADDR
 #error "Please define EEPROM_ADDR_RTU_ADDR"

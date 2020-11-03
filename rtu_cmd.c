@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include <ws2812b/ws2812b.h>
+#include <ws2812b_strip/ws2812b.h>
 #include <drv/tlog.h>
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *fields)

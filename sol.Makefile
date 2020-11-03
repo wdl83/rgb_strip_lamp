@@ -1,4 +1,9 @@
-include ../Makefile.defs
+DRV_DIR=../atmega328p_drv
+
+CPPFLAGS += -I..
+CPPFLAGS += -I$(DRV_DIR)
+
+include $(DRV_DIR)/Makefile.defs
 
 # HW resources in use:
 #
@@ -20,24 +25,24 @@ CFLAGS += \
 
 TARGET = sol
 CSRCS = \
-		../drv/spi0.c \
-		../drv/tlog.c \
-		../drv/tmr0.c \
-		../drv/tmr1.c \
-		../drv/tmr2.c \
-		../drv/usart0.c \
-		../drv/util.c \
-		../hw.c \
-		../modbus-c/atmega328p/rtu_impl.c \
-		../modbus-c/crc.c \
-		../modbus-c/rtu.c \
-		../modbus-c/rtu_memory.c \
-		../ws2812b/fire.c \
-		../ws2812b/fx.c \
-		../ws2812b/palette.c \
-		../ws2812b/rgb.c \
-		../ws2812b/torch.c \
-		../ws2812b/ws2812b.c \
+		$(DRV_DIR)/drv/spi0.c \
+		$(DRV_DIR)/drv/tlog.c \
+		$(DRV_DIR)/drv/tmr0.c \
+		$(DRV_DIR)/drv/tmr1.c \
+		$(DRV_DIR)/drv/tmr2.c \
+		$(DRV_DIR)/drv/usart0.c \
+		$(DRV_DIR)/drv/util.c \
+		$(DRV_DIR)/hw.c \
+		../modbus_c/atmega328p/rtu_impl.c \
+		../modbus_c/crc.c \
+		../modbus_c/rtu.c \
+		../modbus_c/rtu_memory.c \
+		../ws2812b_strip/fire.c \
+		../ws2812b_strip/fx.c \
+		../ws2812b_strip/palette.c \
+		../ws2812b_strip/rgb.c \
+		../ws2812b_strip/torch.c \
+		../ws2812b_strip/ws2812b.c \
 		panic.c \
 		rtu_cmd.c \
 		sol.c 
@@ -48,4 +53,4 @@ ifdef RELEASE
 else
 endif
 
-include ../Makefile.rules
+include $(DRV_DIR)/Makefile.rules
