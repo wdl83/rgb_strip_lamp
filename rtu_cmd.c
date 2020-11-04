@@ -23,7 +23,7 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
 	 * 30fps === 33333us / 4us = 8333
 	 * 60fps === 16666us / 4us = 4167
      * 120fps === 8333us / 4us = 2083 */
-    fields->tmr1_A = 4167;
+    fields->tmr1_A = UINT16_C(4167);
 
     fields->ws2812b_strip =
         (ws2812b_strip_t)
@@ -38,7 +38,7 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
                         .height = STRIP_HEIGHT,
                     },
                 .rgb = fields->rgb_data,
-                .brightness = 0xFF,
+                .brightness = UINT8_C(0xFF),
                 .color_correction =
                     (rgb_t)
                     {
@@ -83,6 +83,13 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
                     .fx = FX_NONE
                 }
         };
+
+    /* cyclic timer (tmr1) is used to decrement heartbeat value
+     * default CTC value is 4167. HW clock cycle time of tmr1 is 4us
+     * 4167 * 4us = 16668us = ~16ms
+     * 0xFFFF x 16668us = 65535 x 16668us = 1,092,337,380us ~18min
+     * 0x0400 x 16668us = 1024 x 16668us = 1,708,032 ~17,08s */
+    fields->heartbeat = UINT16_C(0x0400);
 }
 
 uint8_t *rtu_pdu_cb(

@@ -23,6 +23,9 @@ void cyclic_tmr_cb(uintptr_t user_data)
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
     ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
+    /* prevent heartbeat underflow */
+    if(rtu_memory_fields->heartbeat) --rtu_memory_fields->heartbeat;
+
     if(!strip->flags.abort && strip->flags.updated)
     {
         strip->flags.updated = 0;
@@ -34,6 +37,7 @@ static
 void cyclic_tmr_start(rtu_memory_fields_t *rtu_memory_fields, timer_cb_t cb)
 {
     timer1_cb(cb, (uintptr_t)rtu_memory_fields);
+    /* Clear Timer on Compare */
     TMR1_MODE_CTC();
     TMR1_WR16_A(rtu_memory_fields->tmr1_A);
     TMR1_WR16_CNTR(0);
@@ -105,6 +109,15 @@ void resume(uintptr_t user_data)
 }
 /*-----------------------------------------------------------------------------*/
 static
+void handle_heartbeat(rtu_memory_fields_t *rtu_memory_fields)
+{
+    if(rtu_memory_fields->heartbeat) return;
+
+    watchdog_enable(WATCHDOG_TIMEOUT_16ms);
+    for(;;) {/* wait until reset */}
+}
+
+static
 void handle_reboot(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(!rtu_memory_fields->reboot) return;
@@ -145,8 +158,9 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
 static
 void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
 {
-    handle_strip(rtu_memory_fields);
+    handle_heartbeat(rtu_memory_fields);
     handle_reboot(rtu_memory_fields);
+    handle_strip(rtu_memory_fields);
 }
 
 static
@@ -157,6 +171,8 @@ void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
     if(!strip->flags.update) return;
     else strip->flags.update = 0;
 
+    sei();
+
     if(FX_NONE == strip->flags.fx) fx_none(strip);
     else if(FX_STATIC == strip->flags.fx) fx_static(strip);
     else if(FX_FIRE == strip->flags.fx) fx_fire(strip);
@@ -165,6 +181,9 @@ void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
 /*-----------------------------------------------------------------------------*/
 void main(void)
 {
+    /* watchdog is enabled by bootloader whenever it "jumps" to app code */
+    watchdog_disable();
+
     rtu_memory_fields_t rtu_memory_fields;
     modbus_rtu_state_t state;
 
@@ -183,14 +202,21 @@ void main(void)
     /* set SMCR SE (Sleep Enable bit) */
     sleep_enable();
 
+    /* make sure main event loop is running */
+    watchdog_enable(WATCHDOG_TIMEOUT_1000ms);
+
     for(;;)
     {
         cli(); // disable interrupts
+        watchdog_reset();
         modbus_rtu_event(&state);
-        const bool is_idle = modbus_rtu_idle(&state);
-        if(is_idle) dispatch_uninterruptible(&rtu_memory_fields);
-        sei(); // enabled interrupts
-        if(is_idle) dispatch_interruptible(&rtu_memory_fields);
+
+        if(modbus_rtu_idle(&state))
+        {
+            dispatch_uninterruptible(&rtu_memory_fields);
+            dispatch_interruptible(&rtu_memory_fields);
+        }
+        sei();
         sleep_cpu();
     }
 }

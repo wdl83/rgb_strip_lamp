@@ -55,13 +55,15 @@ typedef struct
     uint16_t tmr1_A;
     // 5
     rgb_t rgb_data[STRIP_SIZE];
-    // 365 == (5 + (STRIP_SIZE * 3) = 5 + 360)
+    // 365 == 5 + (STRIP_SIZE * 3) = 5 + 360
     ws2812b_strip_t ws2812b_strip;
-    // 390 == (365 + 25 = 390)
+    // 390 == 365 + 25
     fx_data_t fx_data;
-    // 510 == (390 + (STRIP_SIZE * 1) = 510)
+    // 510 == 390 + (STRIP_SIZE * 1)
     fx_param_t fx_param;
-    // 549 = (510 + 39) = 549
+    // 549 = (510 + 39)
+    uint16_t heartbeat;
+    // 551 = (549 + 2)
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
 
@@ -71,7 +73,8 @@ STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, sizeof(rtu_memory_t) 
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, sizeof(rtu_memory_t) + 365);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, sizeof(rtu_memory_t) + 390);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, sizeof(rtu_memory_t) + 510);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 549);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat, sizeof(rtu_memory_t) + 549);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 551);
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
 void rtu_memory_fields_init(rtu_memory_fields_t *);

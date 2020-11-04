@@ -1,9 +1,11 @@
 #include <avr/interrupt.h>
 #include <drv/usart0.h>
+#include <drv/watchdog.h>
 
 static
 void panic(const char *src)
 {
+#if 0
     USART0_TX_DISABLE();
     USART0_RX_DISABLE();
     USART0_BR(0);
@@ -17,6 +19,10 @@ void panic(const char *src)
         usart0_send_str(src);
         usart0_send_str("]\n");
     }
+#else
+    watchdog_enable(WATCHDOG_TIMEOUT_16ms);
+    for(;;) {/* wait until reset */}
+#endif
 }
 
 ISR(INT0_vect) { panic("INT0"); }
