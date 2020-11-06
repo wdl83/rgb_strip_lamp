@@ -1,4 +1,7 @@
+BOOTLOADER=../bootloader
 DRV_DIR=../atmega328p_drv
+MODBUS_C=../modbus_c
+WS2812B_STRIP=../ws2812b_strip
 
 CPPFLAGS += -I..
 CPPFLAGS += -I$(DRV_DIR)
@@ -33,17 +36,17 @@ CSRCS = \
 		$(DRV_DIR)/drv/usart0.c \
 		$(DRV_DIR)/drv/util.c \
 		$(DRV_DIR)/hw.c \
-		../bootloader/fixed.c \
-		../modbus_c/atmega328p/rtu_impl.c \
-		../modbus_c/crc.c \
-		../modbus_c/rtu.c \
-		../modbus_c/rtu_memory.c \
-		../ws2812b_strip/fire.c \
-		../ws2812b_strip/fx.c \
-		../ws2812b_strip/palette.c \
-		../ws2812b_strip/rgb.c \
-		../ws2812b_strip/torch.c \
-		../ws2812b_strip/ws2812b.c \
+		$(BOOTLOADER)/fixed.c \
+		$(MODBUS_C)/atmega328p/rtu_impl.c \
+		$(MODBUS_C)/crc.c \
+		$(MODBUS_C)/rtu.c \
+		$(MODBUS_C)/rtu_memory.c \
+		$(WS2812B_STRIP)/fire.c \
+		$(WS2812B_STRIP)/fx.c \
+		$(WS2812B_STRIP)/palette.c \
+		$(WS2812B_STRIP)/rgb.c \
+		$(WS2812B_STRIP)/torch.c \
+		$(WS2812B_STRIP)/ws2812b.c \
 		panic.c \
 		rtu_cmd.c \
 		sol.c 
@@ -57,3 +60,9 @@ ifdef RELEASE
 endif
 
 include $(DRV_DIR)/Makefile.rules
+
+clean:
+	cd $(DRV_DIR) && make clean
+	cd $(BOOTLOADER) && make clean
+	cd $(WS2812B_STRIP) && make clean
+	rm *.bin *.elf *.hex *.lst *.map *.o *.su *.stack_usage -f
