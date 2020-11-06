@@ -9,8 +9,10 @@
 #include <drv/tmr2.h>
 #include <drv/watchdog.h>
 
-#include <modbus_c/rtu.h>
+#include <bootloader/fixed.h>
+
 #include <modbus_c/atmega328p/rtu_impl.h>
+#include <modbus_c/rtu.h>
 
 #include <ws2812b_strip/ws2812b.h>
 
@@ -190,6 +192,9 @@ void main(void)
     rtu_memory_fields_clear(&rtu_memory_fields);
     rtu_memory_fields_init(&rtu_memory_fields);
     tlog_init(rtu_memory_fields.tlog);
+
+    TLOG_XPRINT16("MCUSR|RSTC", ((uint16_t)fixed__.mcusr << 8) | fixed__.reset_counter);
+
     ws2812b_init(&rtu_memory_fields.ws2812b_strip);
     modbus_rtu_impl(
         &state,

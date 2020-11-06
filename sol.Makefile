@@ -33,6 +33,7 @@ CSRCS = \
 		$(DRV_DIR)/drv/usart0.c \
 		$(DRV_DIR)/drv/util.c \
 		$(DRV_DIR)/hw.c \
+		../bootloader/fixed.c \
 		../modbus_c/atmega328p/rtu_impl.c \
 		../modbus_c/crc.c \
 		../modbus_c/rtu.c \
@@ -47,10 +48,12 @@ CSRCS = \
 		rtu_cmd.c \
 		sol.c 
 
+LDFLAGS += \
+		   -Wl,-T ../bootloader/atmega328p.ld
+
 ifdef RELEASE
 	CFLAGS +=  \
 		-DASSERT_DISABLE
-else
 endif
 
 include $(DRV_DIR)/Makefile.rules
