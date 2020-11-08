@@ -2,6 +2,8 @@
 #include <drv/usart0.h>
 #include <drv/watchdog.h>
 
+#include <bootloader/fixed.h>
+
 static
 void panic(const char *src)
 {
@@ -20,6 +22,7 @@ void panic(const char *src)
         usart0_send_str("]\n");
     }
 #else
+    ++fixed__.panic_counter;
     watchdog_enable(WATCHDOG_TIMEOUT_16ms);
     for(;;) {/* wait until reset */}
 #endif

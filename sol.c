@@ -114,9 +114,10 @@ static
 void handle_heartbeat(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(rtu_memory_fields->heartbeat) return;
+    TLOG_TP();
 
-    watchdog_enable(WATCHDOG_TIMEOUT_16ms);
-    for(;;) {/* wait until reset */}
+    //watchdog_enable(WATCHDOG_TIMEOUT_16ms);
+    //for(;;) {/* wait until reset */}
 }
 
 static
@@ -125,6 +126,7 @@ void handle_reboot(rtu_memory_fields_t *rtu_memory_fields)
     if(!rtu_memory_fields->reboot) return;
 
     rtu_memory_fields->reboot = 0;
+    watchdog_disable();
     watchdog_enable(WATCHDOG_TIMEOUT_250ms);
     sei(); /* USART0 async transmission in progress - Modbus reply */
     for(;;) {/* wait until reset */}

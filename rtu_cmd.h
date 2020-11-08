@@ -62,7 +62,15 @@ typedef struct
     // 510 == 390 + (STRIP_SIZE * 1)
     fx_param_t fx_param;
     // 549 = (510 + 39)
-    uint16_t heartbeat;
+    union
+    {
+        struct
+        {
+            uint8_t heartbeat_low;
+            uint8_t heartbeat_high;
+        };
+        uint16_t heartbeat;
+    };
     // 551 = (549 + 2)
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
@@ -74,6 +82,8 @@ STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, sizeof(rtu_memor
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, sizeof(rtu_memory_t) + 390);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, sizeof(rtu_memory_t) + 510);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat, sizeof(rtu_memory_t) + 549);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_low, sizeof(rtu_memory_t) + 549);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_high, sizeof(rtu_memory_t) + 550);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 551);
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
