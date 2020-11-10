@@ -114,6 +114,7 @@ static
 void handle_heartbeat(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(rtu_memory_fields->heartbeat) return;
+    rtu_memory_fields->heartbeat = HEARTBEAT_PERIOD;
     TLOG_TP();
 
     //watchdog_enable(WATCHDOG_TIMEOUT_16ms);

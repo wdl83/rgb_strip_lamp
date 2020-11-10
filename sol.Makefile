@@ -24,6 +24,7 @@ CFLAGS += \
 		  -DSTRIP_WIDTH=6 \
 		  -DSTRIP_SIZE=120 \
 		  -DTLOG_SIZE=256 \
+		  -DHEARTBEAT_PERIOD=4096 \
 		  -Dmap_size_t=uint8_t
 
 TARGET = sol

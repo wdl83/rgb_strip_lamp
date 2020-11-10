@@ -91,7 +91,7 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
      * 0xFFFF x 16668us = 65535 x 16668us = 1,092,337,380us ~18min
      * 0x0400 x 16668us = 1024 x 16668us = 1,708,032 ~17,08s
      * 0x1000 x 16668us = 4096 x 16668us ~ 68,32s */
-    fields->heartbeat = UINT16_C(0x1000);
+    fields->heartbeat = UINT16_C(HEARTBEAT_PERIOD);
 }
 
 uint8_t *rtu_pdu_cb(
