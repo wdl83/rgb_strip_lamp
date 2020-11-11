@@ -92,6 +92,7 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
      * 0x0400 x 16668us = 1024 x 16668us = 1,708,032 ~17,08s
      * 0x1000 x 16668us = 4096 x 16668us ~ 68,32s */
     fields->heartbeat = UINT16_C(HEARTBEAT_PERIOD);
+    fields->rtu_err_reboot_threashold = UINT8_C(RTU_ERR_REBOOT_THREASHOLD);
 }
 
 uint8_t *rtu_pdu_cb(
@@ -106,7 +107,7 @@ uint8_t *rtu_pdu_cb(
 {
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
 
-    TLOG_XPRINT16("S|F", ((uint16_t)addr << 8) | fcode);
+    //TLOG_XPRINT16("S|F", ((uint16_t)addr << 8) | fcode);
 
     if(modbus_rtu_addr(state) != addr) goto exit;
 

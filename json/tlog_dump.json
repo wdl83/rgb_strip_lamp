@@ -2,14 +2,14 @@
   {
     "slave" : 128,
     "fcode" : 65,
-    "addr" : 4645,
+    "addr" : 4648,
     "count" : 249,
     "timeout_ms" : 250
   },
   {
     "slave" : 128,
     "fcode" : 65,
-    "addr" : 4894,
+    "addr" : 4897,
     "count" : 7
   }
 ]

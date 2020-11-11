@@ -71,6 +71,7 @@ typedef struct
         };
         uint16_t heartbeat;
     };
+    uint8_t rtu_err_reboot_threashold;
     // 551 = (549 + 2)
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
@@ -84,7 +85,8 @@ STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, sizeof(rtu_memory_t) 
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat, sizeof(rtu_memory_t) + 549);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_low, sizeof(rtu_memory_t) + 549);
 STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_high, sizeof(rtu_memory_t) + 550);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 551);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rtu_err_reboot_threashold, sizeof(rtu_memory_t) + 551);
+STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 552);
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
 void rtu_memory_fields_init(rtu_memory_fields_t *);

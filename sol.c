@@ -122,11 +122,24 @@ void handle_heartbeat(rtu_memory_fields_t *rtu_memory_fields)
 }
 
 static
+void handle_rtu_state(
+    modbus_rtu_state_t *state,
+    rtu_memory_fields_t *rtu_memory_fields)
+{
+    if(rtu_memory_fields->rtu_err_reboot_threashold > state->err_cntr) return;
+    fixed__.app_reset_code.curr = RESET_CODE_RTU_ERROR;
+    watchdog_disable();
+    watchdog_enable(WATCHDOG_TIMEOUT_16ms);
+    for(;;) {/* wait until reset */}
+}
+
+static
 void handle_reboot(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(!rtu_memory_fields->reboot) return;
 
     rtu_memory_fields->reboot = 0;
+    fixed__.app_reset_code.curr = RESET_CODE_REBOOT;
     watchdog_disable();
     watchdog_enable(WATCHDOG_TIMEOUT_250ms);
     sei(); /* USART0 async transmission in progress - Modbus reply */
@@ -161,8 +174,11 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
 }
 
 static
-void dispatch_uninterruptible(rtu_memory_fields_t *rtu_memory_fields)
+void dispatch_uninterruptible(
+    modbus_rtu_state_t *state,
+    rtu_memory_fields_t *rtu_memory_fields)
 {
+    handle_rtu_state(state, rtu_memory_fields);
     handle_heartbeat(rtu_memory_fields);
     handle_reboot(rtu_memory_fields);
     handle_strip(rtu_memory_fields);
@@ -187,7 +203,9 @@ void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
 void main(void)
 {
     /* watchdog is enabled by bootloader whenever it "jumps" to app code */
+    fixed__.app_reset_code.curr = RESET_CODE_APP_IDLE;
     watchdog_disable();
+    watchdog_enable(WATCHDOG_TIMEOUT_1000ms);
 
     rtu_memory_fields_t rtu_memory_fields;
     modbus_rtu_state_t state;
@@ -196,7 +214,9 @@ void main(void)
     rtu_memory_fields_init(&rtu_memory_fields);
     tlog_init(rtu_memory_fields.tlog);
 
-    TLOG_XPRINT16("MCUSR|RSTC", ((uint16_t)fixed__.mcusr << 8) | fixed__.reset_counter);
+    TLOG_XPRINT2x8("MCUSR|RSTCNT", fixed__.mcusr, fixed__.reset_counter);
+    TLOG_XPRINT2x8("B|ARSTC", fixed__.bootloader_reset_code.value, fixed__.app_reset_code.value);
+    TLOG_XPRINT2x8("PNC|APPCNT", fixed__.panic_counter, fixed__.app_counter);
 
     ws2812b_init(&rtu_memory_fields.ws2812b_strip);
     modbus_rtu_impl(
@@ -210,9 +230,6 @@ void main(void)
     /* set SMCR SE (Sleep Enable bit) */
     sleep_enable();
 
-    /* make sure main event loop is running */
-    watchdog_enable(WATCHDOG_TIMEOUT_1000ms);
-
     for(;;)
     {
         cli(); // disable interrupts
@@ -221,7 +238,7 @@ void main(void)
 
         if(modbus_rtu_idle(&state))
         {
-            dispatch_uninterruptible(&rtu_memory_fields);
+            dispatch_uninterruptible(&state, &rtu_memory_fields);
             dispatch_interruptible(&rtu_memory_fields);
         }
         sei();
