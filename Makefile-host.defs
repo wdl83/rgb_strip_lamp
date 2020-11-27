@@ -1,0 +1,26 @@
+TOOLS_PREFIX=
+
+CC=$(TOOLS_PREFIX)gcc
+
+ROOT_SRC = ..
+
+CPPFLAGS = -I $(ROOT_SRC)
+
+FLAGS = \
+		 -Wall \
+		 -Wextra \
+		 -Wno-parentheses \
+		 -Wno-unused-parameter \
+		 -Wshadow \
+		 -Wunreachable-code \
+		 -Wpadded \
+		 -Wpacked \
+		 -O0 \
+		 -g \
+		 -fomit-frame-pointer \
+		 -DHOST
+
+CFLAGS = $(FLAGS) -std=gnu99
+CXXFLAGS = $(FLAGS) -std=c++14
+
+LDFLAGS = -lstdc++
