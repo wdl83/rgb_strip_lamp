@@ -72,17 +72,7 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
                         .data = &fields->fx_data,
                         .param = &fields->fx_param
                     }
-            },
-            .flags =
-                (ws2812b_flags_t)
-                {
-                    .update = 0,
-                    /* force strip update after reset */
-                    .updated = 1,
-                    .abort = 0,
-                    .aborted = 0,
-                    .fx = FX_NONE
-                }
+            }
         };
 
     /* cyclic timer (tmr1) is used to decrement heartbeat value
@@ -108,6 +98,10 @@ uint8_t *rtu_pdu_cb(
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
 
     //TLOG_XPRINT16("S|F", ((uint16_t)addr << 8) | fcode);
+
+    /* because crossing rtu_err_reboot_threashold will cause
+     * reboot decrese error count if valid PDU received */
+    if(state->err_cntr) --state->err_cntr;
 
     if(modbus_rtu_addr(state) != addr) goto exit;
 
