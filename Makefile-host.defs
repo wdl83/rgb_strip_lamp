@@ -2,10 +2,6 @@ TOOLS_PREFIX=
 
 CC=$(TOOLS_PREFIX)gcc
 
-ROOT_SRC = ..
-
-CPPFLAGS = -I $(ROOT_SRC)
-
 FLAGS = \
 		 -Wall \
 		 -Wextra \
@@ -13,7 +9,7 @@ FLAGS = \
 		 -Wno-unused-parameter \
 		 -Wshadow \
 		 -Wunreachable-code \
-		 -Wpadded \
+		 -Wno-padded \
 		 -Wpacked \
 		 -O0 \
 		 -g \

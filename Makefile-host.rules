@@ -3,6 +3,7 @@ CXXOBJS = $(CXXSRCS:.cpp=.o)
 
 TARGETS = $(TARGET).elf
 all:: $(TARGETS)
+	echo $(TARGETS)
 
 %.elf: $(COBJS) $(CXXOBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)

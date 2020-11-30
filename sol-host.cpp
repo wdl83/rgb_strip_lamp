@@ -1,15 +1,14 @@
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <thread>
 
-#include <string.h>
-
 extern "C"
 {
-#include <ws2812b/fire.h>
-#include <ws2812b/torch.h>
+#include <ws2812b_strip/fire.h>
+#include <ws2812b_strip/torch.h>
 } /* extern "C" */
 
 
