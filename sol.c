@@ -65,29 +65,36 @@ void cyclic_tmr_update(rtu_memory_fields_t *rtu_memory_fields)
     cyclic_tmr_start(rtu_memory_fields, cyclic_tmr_cb);
 }
 /*-----------------------------------------------------------------------------*/
-static inline
+static
 void fx_none(ws2812b_strip_t *strip)
 {
     ws2812b_update(strip);
 }
 
-static inline
+static
 void fx_static(ws2812b_strip_t *strip)
 {
     ws2812b_update(strip);
 }
 
-static inline
+static
 void fx_fire(ws2812b_strip_t *strip)
 {
-    fx_calc_fire(&strip->rgb_map, &strip->fx_data_map.data_map);
+    fx_calc_fire(&strip->rgb_map, &strip->fx_data_map);
     ws2812b_update(strip);
 }
 
-static inline
+static
 void fx_torch(ws2812b_strip_t *strip)
 {
-    fx_calc_torch(&strip->rgb_map, &strip->fx_data_map.data_map);
+    fx_calc_torch(&strip->rgb_map, &strip->fx_data_map);
+    ws2812b_update(strip);
+}
+
+static
+void fx_noise(ws2812b_strip_t *strip)
+{
+    fx_calc_noise(&strip->rgb_map, &strip->fx_data_map);
     ws2812b_update(strip);
 }
 /*-----------------------------------------------------------------------------*/
@@ -155,12 +162,13 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
     cyclic_tmr_update(rtu_memory_fields);
     ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
-    if(rtu_memory_fields->strip_fx != strip->flags.fx)
+    //if(rtu_memory_fields->strip_fx != strip->flags.fx)
     {
         strip->flags.fx = rtu_memory_fields->strip_fx;
         if(FX_NONE == strip->flags.fx) ws2812b_power_off(strip);
         else ws2812b_power_on(strip);
-        if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map.data_map);
+        if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map);
+        else if(FX_NOISE == strip->flags.fx) fx_init_noise(&strip->fx_data_map);
     }
 
     if(rtu_memory_fields->strip_refresh)
@@ -198,6 +206,7 @@ void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
     else if(FX_STATIC == strip->flags.fx) fx_static(strip);
     else if(FX_FIRE == strip->flags.fx) fx_fire(strip);
     else if(FX_TORCH == strip->flags.fx) fx_torch(strip);
+    else if(FX_NOISE == strip->flags.fx) fx_noise(strip);
 }
 /*-----------------------------------------------------------------------------*/
 void main(void)

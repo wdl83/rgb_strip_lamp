@@ -44,11 +44,14 @@ CSRCS = \
 		$(MODBUS_C)/crc.c \
 		$(MODBUS_C)/rtu.c \
 		$(MODBUS_C)/rtu_memory.c \
+		$(WS2812B_STRIP)/energy.c \
 		$(WS2812B_STRIP)/fire.c \
 		$(WS2812B_STRIP)/fx.c \
+		$(WS2812B_STRIP)/noise.c \
 		$(WS2812B_STRIP)/palette.c \
 		$(WS2812B_STRIP)/rgb.c \
 		$(WS2812B_STRIP)/torch.c \
+		$(WS2812B_STRIP)/util.c \
 		$(WS2812B_STRIP)/ws2812b.c \
 		panic.c \
 		rtu_cmd.c \

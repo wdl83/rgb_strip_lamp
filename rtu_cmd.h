@@ -4,6 +4,7 @@
 
 #include <modbus_c/rtu.h>
 #include <modbus_c/rtu_memory.h>
+#include <ws2812b_strip/noise.h>
 #include <ws2812b_strip/rgb.h>
 #include <ws2812b_strip/ws2812b.h>
 
@@ -19,6 +20,7 @@ typedef union
 {
     fire_heat_t fire_heat[STRIP_SIZE]; // 1 * STRIP_SIZE
     torch_energy_t torch_energy[STRIP_SIZE]; // 1 * STRIP_SIZE
+    energy_t energy[STRIP_SIZE]; // 1 * STRIP_SIZE
 } fx_data_t; // 1 * STRIP_SIZE
 
 STATIC_ASSERT(sizeof(fx_data_t) == 1 * STRIP_SIZE);
@@ -33,6 +35,8 @@ typedef union
          * (2bits per element) */
         uint8_t torch_param_mode[sizeof(torch_param_t) + (STRIP_SIZE >> 2)];
     }; // 9 + 120/4 = 39
+
+    noise_param_t noise_param;
 } fx_param_t; // 39
 
 STATIC_ASSERT(sizeof(fx_param_t) == 39);

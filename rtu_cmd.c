@@ -17,7 +17,9 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
     fields->rtu_memory.addr_end = RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_t);
 
     fields->size = sizeof(rtu_memory_fields_t);
+    fields->strip_updated = 1;
     fields->strip_fx = FX_NONE;
+    fields->strip_refresh = 1;
 	/* 16MHz / 64 = 1MHz / 4 = 250kHz === 4us
 	 * 16bit x 4us = 262144us = 262ms
 	 * 30fps === 33333us / 4us = 8333
@@ -53,25 +55,21 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
                         .G = VALUE_G(TEMP_CORRECTION_Tungsten100W),
                         .B = VALUE_B(TEMP_CORRECTION_Tungsten100W)
                     },
-                .palette_id = (palette_id_t){.value = PALETTE_ID_INVALID}
+                .palette16_id = (palette16_id_t){.value = PALETTE16_ID_INVALID}
             },
             .rgb_idx = 0,
             .rgb_size = STRIP_SIZE * sizeof(rgb_t),
             .fx_data_map =
             {
-                .data_map =
-                    (data_map_t)
+                .header =
+                    (map_header_t)
                     {
-                        .header =
-                            (map_header_t)
-                            {
-                                .stride = STRIP_STRIDE,
-                                .width = STRIP_WIDTH,
-                                .height = STRIP_HEIGHT,
-                            },
-                        .data = &fields->fx_data,
-                        .param = &fields->fx_param
-                    }
+                        .stride = STRIP_STRIDE,
+                        .width = STRIP_WIDTH,
+                        .height = STRIP_HEIGHT,
+                    },
+                .data = &fields->fx_data,
+                .param = &fields->fx_param
             }
         };
 
