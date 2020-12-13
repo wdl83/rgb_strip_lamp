@@ -23,8 +23,8 @@ void panic(const char *src)
     }
 #else
     ++fixed__.panic_counter;
-    watchdog_enable(WATCHDOG_TIMEOUT_16ms);
-    for(;;) {/* wait until reset */}
+    asm("jmp 0000");
+    for(;;) {}
 #endif
 }
 

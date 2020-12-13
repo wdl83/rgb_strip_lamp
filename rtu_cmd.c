@@ -1,10 +1,31 @@
-#include "rtu_cmd.h"
-
 #include <string.h>
 #include <stddef.h>
 
+#include <avr/pgmspace.h>
+#include <util/crc16.h>
+
 #include <ws2812b_strip/ws2812b.h>
 #include <drv/tlog.h>
+
+#include "rtu_cmd.h"
+
+extern uint16_t __text_start;
+//extern void *__text_end;
+//extern void *__data_load_start;
+extern uint16_t __data_load_end;
+
+static
+uint16_t calc_fw_checksum(void)
+{
+    uint16_t crc16 = UINT16_C(0xFFFF);
+    { // .text & data sections
+        uint8_t *begin = (uint8_t*)((uint16_t)&__text_start);
+        const uint8_t *const end = (uint8_t *)((uint16_t)&__data_load_end);
+
+        while(begin != end) crc16 = _crc16_update(crc16, pgm_read_byte(begin++));
+    }
+    return crc16;
+}
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *fields)
 {
@@ -16,16 +37,16 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
     fields->rtu_memory.addr_begin = RTU_ADDR_BASE;
     fields->rtu_memory.addr_end = RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_t);
 
-    fields->size = sizeof(rtu_memory_fields_t);
+    fields->fw_checksum = calc_fw_checksum();
     fields->strip_updated = 1;
     fields->strip_fx = FX_NONE;
-    fields->strip_refresh = 1;
 	/* 16MHz / 64 = 1MHz / 4 = 250kHz === 4us
 	 * 16bit x 4us = 262144us = 262ms
 	 * 30fps === 33333us / 4us = 8333
+	 * 50fps === 20000us / 4us = 5000
 	 * 60fps === 16666us / 4us = 4167
      * 120fps === 8333us / 4us = 2083 */
-    fields->tmr1_A = UINT16_C(4167);
+    fields->tmr1_A = UINT16_C(5000);
 
     fields->ws2812b_strip =
         (ws2812b_strip_t)

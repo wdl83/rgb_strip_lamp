@@ -45,13 +45,12 @@ typedef struct
 {
     rtu_memory_t rtu_memory;
     // 0
-    uint16_t size;
+    uint16_t fw_checksum;
     // 2
     struct
     {
         uint8_t strip_updated : 1; // LSB
-        uint8_t strip_refresh : 1;
-        uint8_t : 1;
+        uint8_t : 2;
         uint8_t reboot : 1;
         uint8_t strip_fx : 4;
     };

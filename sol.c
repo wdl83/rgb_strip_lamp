@@ -98,6 +98,7 @@ void fx_noise(ws2812b_strip_t *strip)
     ws2812b_update(strip);
 }
 /*-----------------------------------------------------------------------------*/
+static
 void suspend(uintptr_t user_data)
 {
     /* suspend ws2812b strip update - as this is the only heavy duty task
@@ -108,6 +109,7 @@ void suspend(uintptr_t user_data)
     strip->flags.abort = 1;
 }
 
+static
 void resume(uintptr_t user_data)
 {
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
@@ -122,7 +124,7 @@ void handle_heartbeat(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(rtu_memory_fields->heartbeat) return;
     rtu_memory_fields->heartbeat = HEARTBEAT_PERIOD;
-    TLOG_TP();
+    //TLOG_TP();
 
     //watchdog_enable(WATCHDOG_TIMEOUT_16ms);
     //for(;;) {/* wait until reset */}
@@ -157,28 +159,31 @@ static
 void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
 {
     if(!rtu_memory_fields->strip_updated) return;
-
     rtu_memory_fields->strip_updated = 0;
+#if 0
     cyclic_tmr_update(rtu_memory_fields);
+#endif
     ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
 
-    //if(rtu_memory_fields->strip_fx != strip->flags.fx)
+    strip->flags.fx = rtu_memory_fields->strip_fx;
+
+    if(FX_NONE == strip->flags.fx)
     {
-        strip->flags.fx = rtu_memory_fields->strip_fx;
-        if(FX_NONE == strip->flags.fx) ws2812b_power_off(strip);
-        else ws2812b_power_on(strip);
+        ws2812b_clear(strip);
+        ws2812b_power_off(strip);
+    }
+    else
+    {
+        if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
+        else ws2812b_clear(strip);
+
         if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map);
-        else if(FX_NOISE == strip->flags.fx) fx_init_noise(&strip->fx_data_map);
+        if(FX_NOISE == strip->flags.fx) fx_init_noise(&strip->fx_data_map);
+
+        ws2812b_power_on(strip);
     }
 
-    if(rtu_memory_fields->strip_refresh)
-    {
-        if(FX_NONE == strip->flags.fx) ws2812b_clear(strip);
-        else if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
-
-        rtu_memory_fields->strip_refresh = 0;
-        strip->flags.updated = 1;
-    }
+    strip->flags.updated = 1;
 }
 
 static
@@ -209,6 +214,7 @@ void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
     else if(FX_NOISE == strip->flags.fx) fx_noise(strip);
 }
 /*-----------------------------------------------------------------------------*/
+__attribute__((noreturn))
 void main(void)
 {
     /* watchdog is enabled by bootloader whenever it "jumps" to app code */
