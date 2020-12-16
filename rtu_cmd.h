@@ -34,12 +34,12 @@ typedef union
         /* extends torch param to account for mode data for each STRIP element
          * (2bits per element) */
         uint8_t torch_param_mode[sizeof(torch_param_t) + (STRIP_SIZE >> 2)];
-    }; // 9 + 120/4 = 39
+    }; // 9 + STRIP_SIZE / 4
 
     noise_param_t noise_param;
-} fx_param_t; // 39
+} fx_param_t;
 
-STATIC_ASSERT(sizeof(fx_param_t) == 39);
+STATIC_ASSERT(sizeof(fx_param_t) == 9 + STRIP_SIZE >> 2);
 
 typedef struct
 {
