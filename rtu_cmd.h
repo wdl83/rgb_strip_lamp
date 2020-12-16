@@ -57,14 +57,6 @@ typedef struct
     // 3
     uint16_t tmr1_A;
     // 5
-    rgb_t rgb_data[STRIP_SIZE];
-    // 365 == 5 + (STRIP_SIZE * 3) = 5 + 360
-    ws2812b_strip_t ws2812b_strip;
-    // 390 == 365 + 25
-    fx_data_t fx_data;
-    // 510 == 390 + (STRIP_SIZE * 1)
-    fx_param_t fx_param;
-    // 549 = (510 + 39)
     union
     {
         struct
@@ -74,22 +66,60 @@ typedef struct
         };
         uint16_t heartbeat;
     };
+    // 7
     uint8_t rtu_err_reboot_threashold;
-    // 551 = (549 + 2)
+    // 8
+    ws2812b_strip_t ws2812b_strip;
+    // 33 = 8 + 25
+    rgb_t rgb_data[STRIP_SIZE];
+    // 33 + (STRIP_SIZE * 3)
+    fx_data_t fx_data;
+    // 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1)
+    fx_param_t fx_param;
+    // 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1) + 9 + (STRIP_SIZE >> 2)
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
 
 
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tmr1_A, sizeof(rtu_memory_t) + 3);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rgb_data, sizeof(rtu_memory_t) + 5);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, ws2812b_strip, sizeof(rtu_memory_t) + 365);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_data, sizeof(rtu_memory_t) + 390);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, fx_param, sizeof(rtu_memory_t) + 510);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat, sizeof(rtu_memory_t) + 549);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_low, sizeof(rtu_memory_t) + 549);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, heartbeat_high, sizeof(rtu_memory_t) + 550);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, rtu_err_reboot_threashold, sizeof(rtu_memory_t) + 551);
-STATIC_ASSERT_STRUCT_OFFSET(rtu_memory_fields_t, tlog, sizeof(rtu_memory_t) + 552);
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, tmr1_A,
+    sizeof(rtu_memory_t) + 3);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, heartbeat,
+    sizeof(rtu_memory_t) + 5);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, heartbeat_low,
+    sizeof(rtu_memory_t) + 5);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, heartbeat_high,
+    sizeof(rtu_memory_t) + 6);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, rtu_err_reboot_threashold,
+    sizeof(rtu_memory_t) + 7);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, ws2812b_strip,
+    sizeof(rtu_memory_t) + 8);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, rgb_data,
+    sizeof(rtu_memory_t) + 33);
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, fx_data,
+    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3));
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, fx_param,
+    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1));
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, tlog,
+    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1) + 9 + (STRIP_SIZE >> 2));
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
 void rtu_memory_fields_init(rtu_memory_fields_t *);
