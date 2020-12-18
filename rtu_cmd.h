@@ -18,35 +18,23 @@
 
 typedef union
 {
-    fire_heat_t fire_heat[STRIP_SIZE]; // 1 * STRIP_SIZE
-    torch_energy_t torch_energy[STRIP_SIZE]; // 1 * STRIP_SIZE
-    energy_t energy[STRIP_SIZE]; // 1 * STRIP_SIZE
-} fx_data_t; // 1 * STRIP_SIZE
-
-STATIC_ASSERT(sizeof(fx_data_t) == 1 * STRIP_SIZE);
+    ws2812b_strip_t strip;
+    uint8_t raw[WS2812B_STRIP_SIZE(STRIP_LENGTH)];
+} ws2812b_mmap_t;
 
 typedef union
 {
-    fire_param_t fire_param; // 1
-    union
-    {
-        torch_param_t torch_param; // 9
-        /* extends torch param to account for mode data for each STRIP element
-         * (2bits per element) */
-        uint8_t torch_param_mode[sizeof(torch_param_t) + (STRIP_SIZE >> 2)];
-    }; // 9 + STRIP_SIZE / 4
-
-    noise_param_t noise_param;
-} fx_param_t;
-
-STATIC_ASSERT(sizeof(fx_param_t) == 9 + STRIP_SIZE >> 2);
+    map_header_t header;
+    uint8_t fire_raw[FIRE_MAP_SIZE(STRIP_LENGTH)];
+    uint8_t torch_raw[TORCH_MAP_SIZE(STRIP_LENGTH)];
+    uint8_t noise_raw[NOISE_MAP_SIZE(STRIP_LENGTH)];
+    uint8_t raw[0];
+} fx_mmap_t;
 
 typedef struct
 {
     rtu_memory_t rtu_memory;
-    // 0
     uint16_t fw_checksum;
-    // 2
     struct
     {
         uint8_t strip_updated : 1; // LSB
@@ -54,9 +42,7 @@ typedef struct
         uint8_t reboot : 1;
         uint8_t strip_fx : 4;
     };
-    // 3
     uint16_t tmr1_A;
-    // 5
     union
     {
         struct
@@ -66,20 +52,16 @@ typedef struct
         };
         uint16_t heartbeat;
     };
-    // 7
     uint8_t rtu_err_reboot_threashold;
-    // 8
-    ws2812b_strip_t ws2812b_strip;
-    // 33 = 8 + 25
-    rgb_t rgb_data[STRIP_SIZE];
-    // 33 + (STRIP_SIZE * 3)
-    fx_data_t fx_data;
-    // 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1)
-    fx_param_t fx_param;
-    // 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1) + 9 + (STRIP_SIZE >> 2)
+    ws2812b_mmap_t ws2812b_mmap;
+    fx_mmap_t fx_mmap;
     char tlog[TLOG_SIZE];
 } rtu_memory_fields_t;
 
+
+STATIC_ASSERT_STRUCT_OFFSET(
+    rtu_memory_fields_t, fw_checksum,
+    sizeof(rtu_memory_t) + 0);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, tmr1_A,
@@ -102,24 +84,19 @@ STATIC_ASSERT_STRUCT_OFFSET(
     sizeof(rtu_memory_t) + 7);
 
 STATIC_ASSERT_STRUCT_OFFSET(
-    rtu_memory_fields_t, ws2812b_strip,
+    rtu_memory_fields_t, ws2812b_mmap,
     sizeof(rtu_memory_t) + 8);
 
 STATIC_ASSERT_STRUCT_OFFSET(
-    rtu_memory_fields_t, rgb_data,
-    sizeof(rtu_memory_t) + 33);
-
-STATIC_ASSERT_STRUCT_OFFSET(
-    rtu_memory_fields_t, fx_data,
-    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3));
-
-STATIC_ASSERT_STRUCT_OFFSET(
-    rtu_memory_fields_t, fx_param,
-    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1));
+    rtu_memory_fields_t, fx_mmap,
+    sizeof(rtu_memory_t) + 8
+    + 16 /* ws2812b_strip_t */ + STRIP_LENGTH * 3);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, tlog,
-    sizeof(rtu_memory_t) + 33 + (STRIP_SIZE * 3) + (STRIP_SIZE * 1) + 9 + (STRIP_SIZE >> 2));
+    sizeof(rtu_memory_t) + 8
+    + 16 /* ws2812b_strip_t */ + STRIP_LENGTH * 3
+    + 12 /* max(fire, torch, noise) */ + STRIP_LENGTH + (STRIP_LENGTH >> 2));
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
 void rtu_memory_fields_init(rtu_memory_fields_t *);

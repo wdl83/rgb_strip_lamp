@@ -23,7 +23,7 @@ static
 void cyclic_tmr_cb(uintptr_t user_data)
 {
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
 
     /* prevent heartbeat underflow */
     if(rtu_memory_fields->heartbeat) --rtu_memory_fields->heartbeat;
@@ -66,35 +66,44 @@ void cyclic_tmr_update(rtu_memory_fields_t *rtu_memory_fields)
 }
 /*-----------------------------------------------------------------------------*/
 static
-void fx_none(ws2812b_strip_t *strip)
+void fx_none(rtu_memory_fields_t *rtu_memory_fields)
 {
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
+
     ws2812b_update(strip);
 }
 
 static
-void fx_static(ws2812b_strip_t *strip)
+void fx_static(rtu_memory_fields_t *rtu_memory_fields)
 {
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
     ws2812b_update(strip);
 }
 
 static
-void fx_fire(ws2812b_strip_t *strip)
+void fx_fire(rtu_memory_fields_t *rtu_memory_fields)
 {
-    fx_calc_fire(&strip->rgb_map, &strip->fx_data_map);
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
+
+    fx_calc_fire(&strip->rgb_map, rtu_memory_fields->fx_mmap.raw);
     ws2812b_update(strip);
 }
 
 static
-void fx_torch(ws2812b_strip_t *strip)
+void fx_torch(rtu_memory_fields_t *rtu_memory_fields)
 {
-    fx_calc_torch(&strip->rgb_map, &strip->fx_data_map);
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
+
+    fx_calc_torch(&strip->rgb_map, rtu_memory_fields->fx_mmap.raw);
     ws2812b_update(strip);
 }
 
 static
-void fx_noise(ws2812b_strip_t *strip)
+void fx_noise(rtu_memory_fields_t *rtu_memory_fields)
 {
-    fx_calc_noise(&strip->rgb_map, &strip->fx_data_map);
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
+
+    fx_calc_noise(&strip->rgb_map, rtu_memory_fields->fx_mmap.raw);
     ws2812b_update(strip);
 }
 /*-----------------------------------------------------------------------------*/
@@ -104,7 +113,7 @@ void suspend(uintptr_t user_data)
     /* suspend ws2812b strip update - as this is the only heavy duty task
      * cyclic time can keep running */
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
 
     strip->flags.abort = 1;
 }
@@ -113,7 +122,7 @@ static
 void resume(uintptr_t user_data)
 {
     rtu_memory_fields_t *rtu_memory_fields = (rtu_memory_fields_t *)user_data;
-    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
 
     if(strip->flags.aborted) ws2812b_update(strip);
     else if(strip->flags.abort) strip->flags.abort = 0;
@@ -163,7 +172,7 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
 #if 0
     cyclic_tmr_update(rtu_memory_fields);
 #endif
-    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
 
     strip->flags.fx = rtu_memory_fields->strip_fx;
 
@@ -177,8 +186,14 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
         if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
         else ws2812b_clear(strip);
 
-        if(FX_TORCH == strip->flags.fx) fx_init_torch(&strip->fx_data_map);
-        if(FX_NOISE == strip->flags.fx) fx_init_noise(&strip->fx_data_map);
+        if(FX_TORCH == strip->flags.fx)
+        {
+            fx_init_torch(rtu_memory_fields->fx_mmap.raw);
+        }
+        if(FX_NOISE == strip->flags.fx)
+        {
+            fx_init_noise(rtu_memory_fields->fx_mmap.raw);
+        }
 
         ws2812b_power_on(strip);
     }
@@ -200,18 +215,18 @@ void dispatch_uninterruptible(
 static
 void dispatch_interruptible(rtu_memory_fields_t *rtu_memory_fields)
 {
-    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_strip;
+    ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
 
     if(!strip->flags.update) return;
     else strip->flags.update = 0;
 
     sei();
 
-    if(FX_NONE == strip->flags.fx) fx_none(strip);
-    else if(FX_STATIC == strip->flags.fx) fx_static(strip);
-    else if(FX_FIRE == strip->flags.fx) fx_fire(strip);
-    else if(FX_TORCH == strip->flags.fx) fx_torch(strip);
-    else if(FX_NOISE == strip->flags.fx) fx_noise(strip);
+    if(FX_NONE == strip->flags.fx) fx_none(rtu_memory_fields);
+    else if(FX_STATIC == strip->flags.fx) fx_static(rtu_memory_fields);
+    else if(FX_FIRE == strip->flags.fx) fx_fire(rtu_memory_fields);
+    else if(FX_TORCH == strip->flags.fx) fx_torch(rtu_memory_fields);
+    else if(FX_NOISE == strip->flags.fx) fx_noise(rtu_memory_fields);
 }
 /*-----------------------------------------------------------------------------*/
 __attribute__((noreturn))
@@ -233,7 +248,7 @@ void main(void)
     TLOG_XPRINT2x8("B|ARSTC", fixed__.bootloader_reset_code.value, fixed__.app_reset_code.value);
     TLOG_XPRINT2x8("PNC|APPCNT", fixed__.panic_counter, fixed__.app_counter);
 
-    ws2812b_init(&rtu_memory_fields.ws2812b_strip);
+    ws2812b_init(&rtu_memory_fields.ws2812b_mmap.strip);
     modbus_rtu_impl(
         &state,
         eeprom_read_byte((const uint8_t *)EEPROM_ADDR_RTU_ADDR),

@@ -35,7 +35,8 @@ void rtu_memory_fields_clear(rtu_memory_fields_t *fields)
 void rtu_memory_fields_init(rtu_memory_fields_t *fields)
 {
     fields->rtu_memory.addr_begin = RTU_ADDR_BASE;
-    fields->rtu_memory.addr_end = RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_t);
+    fields->rtu_memory.addr_end =
+        RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_t);
 
     fields->fw_checksum = calc_fw_checksum();
     fields->strip_updated = 1;
@@ -48,52 +49,6 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
      * 120fps === 8333us / 4us = 2083 */
     fields->tmr1_A = UINT16_C(5000);
 
-    fields->ws2812b_strip =
-        (ws2812b_strip_t)
-        {
-            .rgb_map =
-            {
-                .header =
-                    (map_header_t)
-                    {
-                        .stride = STRIP_STRIDE,
-                        .width = STRIP_WIDTH,
-                        .height = STRIP_HEIGHT,
-                    },
-                .rgb = fields->rgb_data,
-                .brightness = UINT8_C(0xFF),
-                .color_correction =
-                    (rgb_t)
-                    {
-                        .R = VALUE_R(COLOR_CORRECTION_5050),
-                        .G = VALUE_G(COLOR_CORRECTION_5050),
-                        .B = VALUE_B(COLOR_CORRECTION_5050)
-                    },
-                .temp_correction =
-                    (rgb_t)
-                    {
-                        .R = VALUE_R(TEMP_CORRECTION_Tungsten100W),
-                        .G = VALUE_G(TEMP_CORRECTION_Tungsten100W),
-                        .B = VALUE_B(TEMP_CORRECTION_Tungsten100W)
-                    },
-                .palette16_id = (palette16_id_t){.value = PALETTE16_ID_INVALID}
-            },
-            .rgb_idx = 0,
-            .rgb_size = STRIP_SIZE * sizeof(rgb_t),
-            .fx_data_map =
-            {
-                .header =
-                    (map_header_t)
-                    {
-                        .stride = STRIP_STRIDE,
-                        .width = STRIP_WIDTH,
-                        .height = STRIP_HEIGHT,
-                    },
-                .data = &fields->fx_data,
-                .param = &fields->fx_param
-            }
-        };
-
     /* cyclic timer (tmr1) is used to decrement heartbeat value
      * default CTC value is 4167. HW clock cycle time of tmr1 is 4us
      * 4167 * 4us = 16668us = ~16ms
@@ -102,6 +57,49 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
      * 0x1000 x 16668us = 4096 x 16668us ~ 68,32s */
     fields->heartbeat = UINT16_C(HEARTBEAT_PERIOD);
     fields->rtu_err_reboot_threashold = UINT8_C(RTU_ERR_REBOOT_THREASHOLD);
+
+    fields->ws2812b_mmap = (ws2812b_mmap_t)
+    {
+        .strip =
+        {
+            .flags = {.value = 0},
+            .rgb_idx = 0,
+            .rgb_size = STRIP_LENGTH * 3,
+            .rgb_map =
+            {
+                .brightness = UINT8_C(0xFF),
+                .color_correction =
+                {
+                    .R = VALUE_R(COLOR_CORRECTION_None),
+                    .G = VALUE_G(COLOR_CORRECTION_None),
+                    .B = VALUE_B(COLOR_CORRECTION_None)
+                },
+                .temp_correction =
+                {
+                    .R = VALUE_R(TEMP_CORRECTION_None),
+                    .G = VALUE_G(TEMP_CORRECTION_None),
+                    .B = VALUE_B(TEMP_CORRECTION_None)
+                },
+                .palette16_id = {.value = PALETTE16_ID_INVALID},
+                .header =
+                {
+                    .stride = STRIP_STRIDE,
+                    .width = STRIP_WIDTH,
+                    .height = STRIP_HEIGHT,
+                }
+            }
+        }
+    };
+
+    fields->fx_mmap = (fx_mmap_t)
+    {
+        .header =
+        {
+            .stride = STRIP_STRIDE,
+            .width = STRIP_WIDTH,
+            .height = STRIP_HEIGHT,
+        }
+    };
 }
 
 uint8_t *rtu_pdu_cb(
