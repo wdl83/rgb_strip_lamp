@@ -95,8 +95,10 @@ STATIC_ASSERT_STRUCT_OFFSET(
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, tlog,
     sizeof(rtu_memory_t) + 8
-    + 16 /* ws2812b_strip_t */ + STRIP_LENGTH * 3
-    + 12 /* max(fire, torch, noise) */ + STRIP_LENGTH + (STRIP_LENGTH >> 2));
+    /* ws2812b_strip_t + rgb[] */
+    + 16 + STRIP_LENGTH * 3
+    /* max(fire, torch, noise) */
+    + 12 + STRIP_LENGTH + (STRIP_LENGTH >> 2));
 
 void rtu_memory_fields_clear(rtu_memory_fields_t *);
 void rtu_memory_fields_init(rtu_memory_fields_t *);
