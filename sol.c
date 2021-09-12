@@ -247,6 +247,10 @@ void main(void)
     TLOG_XPRINT2x8("MCUSR|RSTCNT", fixed__.mcusr, fixed__.reset_counter);
     TLOG_XPRINT2x8("B|ARSTC", fixed__.bootloader_reset_code.value, fixed__.app_reset_code.value);
     TLOG_XPRINT2x8("PNC|APPCNT", fixed__.panic_counter, fixed__.app_counter);
+    TLOG_XPRINT16(
+        "TLOG",
+        STRUCT_OFFSET(rtu_memory_fields_t, tlog)
+        - STRUCT_OFFSET(rtu_memory_fields_t, rtu_memory));
 
     ws2812b_init(&rtu_memory_fields.ws2812b_mmap.strip);
     modbus_rtu_impl(
