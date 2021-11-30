@@ -67,7 +67,8 @@ void rtu_memory_fields_init(rtu_memory_fields_t *fields)
             .rgb_size = STRIP_LENGTH * 3,
             .rgb_map =
             {
-                .brightness = UINT8_C(0xFF),
+                .brightness = UINT8_C(0x00),
+                .target_brightness = UINT8_C(0x7F),
                 .color_correction =
                 {
                     .R = VALUE_R(COLOR_CORRECTION_None),

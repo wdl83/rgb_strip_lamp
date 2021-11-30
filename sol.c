@@ -77,6 +77,7 @@ static
 void fx_static(rtu_memory_fields_t *rtu_memory_fields)
 {
     ws2812b_strip_t *strip = &rtu_memory_fields->ws2812b_mmap.strip;
+
     ws2812b_update(strip);
 }
 
@@ -183,14 +184,27 @@ void handle_strip(rtu_memory_fields_t *rtu_memory_fields)
     }
     else
     {
-        if(FX_STATIC == strip->flags.fx) ws2812b_apply_correction(strip);
+        if(FX_STATIC == strip->flags.fx)
+        {
+            /* WARNING: HW limit (power supply) */
+            strip->rgb_map.brightness =
+                UINT8_C(0x80) > strip->rgb_map.target_brightness
+                ? strip->rgb_map.target_brightness
+                : 0x7F;
+
+            ws2812b_apply_correction(strip);
+        }
         else ws2812b_clear(strip);
 
-        if(FX_TORCH == strip->flags.fx)
+        if(FX_FIRE == strip->flags.fx)
+        {
+            fx_init_fire(rtu_memory_fields->fx_mmap.raw);
+        }
+        else if(FX_TORCH == strip->flags.fx)
         {
             fx_init_torch(rtu_memory_fields->fx_mmap.raw);
         }
-        if(FX_NOISE == strip->flags.fx)
+        else if(FX_NOISE == strip->flags.fx)
         {
             fx_init_noise(rtu_memory_fields->fx_mmap.raw);
         }
