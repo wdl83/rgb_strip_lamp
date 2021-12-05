@@ -2,6 +2,8 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 
+#include <hw.h>
+
 #include <drv/assert.h>
 #include <drv/spi0.h>
 #include <drv/tlog.h>
@@ -250,6 +252,8 @@ void main(void)
     fixed__.app_reset_code.curr = RESET_CODE_APP_IDLE;
     watchdog_disable();
     watchdog_enable(WATCHDOG_TIMEOUT_1000ms);
+
+    hw_init(eeprom_read_byte((const uint8_t *)EEPROM_ADDR_HW_INFO));
 
     rtu_memory_fields_t rtu_memory_fields;
     modbus_rtu_state_t state;
