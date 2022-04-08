@@ -1,12 +1,13 @@
-BOOTLOADER=../bootloader
-DRV_DIR=../atmega328p_drv
-MODBUS_C=../modbus_c
-WS2812B_STRIP=../ws2812b_strip
+DRV = atmega328p_drv
+BOOTLOADER = bootloader
+MODBUS_C = modbus_c
+WS2812B_STRIP = ws2812b_strip
+OBJ_DIR = obj
 
-CPPFLAGS += -I..
-CPPFLAGS += -I$(DRV_DIR)
+CPPFLAGS += -I.
+CPPFLAGS += -I$(DRV)
 
-include $(DRV_DIR)/Makefile.defs
+include $(DRV)/Makefile.defs
 
 # HW resources in use:
 #
@@ -32,14 +33,14 @@ CFLAGS += \
 
 TARGET = sol
 CSRCS = \
-		$(DRV_DIR)/drv/spi0.c \
-		$(DRV_DIR)/drv/tlog.c \
-		$(DRV_DIR)/drv/tmr0.c \
-		$(DRV_DIR)/drv/tmr1.c \
-		$(DRV_DIR)/drv/tmr2.c \
-		$(DRV_DIR)/drv/usart0.c \
-		$(DRV_DIR)/drv/util.c \
-		$(DRV_DIR)/hw.c \
+		$(DRV)/drv/spi0.c \
+		$(DRV)/drv/tlog.c \
+		$(DRV)/drv/tmr0.c \
+		$(DRV)/drv/tmr1.c \
+		$(DRV)/drv/tmr2.c \
+		$(DRV)/drv/usart0.c \
+		$(DRV)/drv/util.c \
+		$(DRV)/hw.c \
 		$(BOOTLOADER)/fixed.c \
 		$(MODBUS_C)/atmega328p/rtu_impl.c \
 		$(MODBUS_C)/crc.c \
@@ -59,17 +60,14 @@ CSRCS = \
 		sol.c 
 
 LDFLAGS += \
-		   -Wl,-T ../bootloader/atmega328p.ld
+		   -Wl,-T $(BOOTLOADER)/atmega328p.ld
 
 ifdef RELEASE
 	CFLAGS +=  \
 		-DASSERT_DISABLE
 endif
 
-include $(DRV_DIR)/Makefile.rules
+include $(DRV)/Makefile.rules
 
 clean:
-	cd $(DRV_DIR) && make clean
-	cd $(BOOTLOADER) && make clean
-	cd $(WS2812B_STRIP) && make clean
-	rm *.bin *.elf *.hex *.lst *.map *.o *.su *.stack_usage -f
+	rm $(OBJ_DIR) -rf
