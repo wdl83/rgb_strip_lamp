@@ -4,9 +4,6 @@ MODBUS_C = modbus_c
 WS2812B_STRIP = ws2812b_strip
 OBJ_DIR = obj
 
-CPPFLAGS += -I.
-CPPFLAGS += -I$(DRV)
-
 include $(DRV)/Makefile.defs
 
 # HW resources in use:
@@ -18,8 +15,8 @@ include $(DRV)/Makefile.defs
 
 # -DUSART_DBG_CNTRS
 CFLAGS += \
-		  -DEEPROM_ADDR_RTU_ADDR=0x0 \
 		  -DEEPROM_ADDR_HW_INFO=0x1 \
+		  -DEEPROM_ADDR_RTU_ADDR=0x0 \
 		  -DHEARTBEAT_PERIOD=4096 \
 		  -DRTU_ADDR_BASE=0x1000 \
 		  -DRTU_ERR_REBOOT_THREASHOLD=128 \
@@ -29,7 +26,9 @@ CFLAGS += \
 		  -DSTRIP_STRIDE=6 \
 		  -DSTRIP_WIDTH=6 \
 		  -DTLOG_SIZE=256 \
-		  -Dmap_size_t=uint8_t
+		  -Dmap_size_t=uint8_t \
+		  -I$(DRV) \
+		  -I.
 
 TARGET = sol
 CSRCS = \
@@ -42,8 +41,8 @@ CSRCS = \
 		$(DRV)/drv/util.c \
 		$(DRV)/hw.c \
 		$(BOOTLOADER)/fixed.c \
+		$(MODBUS_C)/atmega328p/crc.c \
 		$(MODBUS_C)/atmega328p/rtu_impl.c \
-		$(MODBUS_C)/crc.c \
 		$(MODBUS_C)/rtu.c \
 		$(MODBUS_C)/rtu_memory.c \
 		$(WS2812B_STRIP)/energy.c \
