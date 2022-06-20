@@ -9,5 +9,5 @@ RUN apt-get install -y avr-libc
 RUN apt-get install -y git
 RUN mkdir -p /home/dev
 WORKDIR /home/dev
-CMD ["/bin/bash", "-c", "git clone https://github.com/wdl83/rgb_strip_lamp; cd rgb_strip_lamp; ./build.sh"]
+CMD ["/bin/bash", "-c", "git clone https://github.com/wdl83/rgb_strip_lamp; cd rgb_strip_lamp; make"]
 ENTRYPOINT ["dumb-init", "--"]

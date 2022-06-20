@@ -1,0 +1,12 @@
+[submodule "atmega328p_drv"]
+	path = atmega328p_drv
+	url = https://github.com/wdl83/atmega328p_drv
+[submodule "bootloader"]
+	path = bootloader
+	url = https://github.com/wdl83/bootloader
+[submodule "modbus_c"]
+	path = modbus_c
+	url = https://github.com/wdl83/modbus_c
+[submodule "ws2812b_strip"]
+	path = ws2812b_strip
+	url = https://github.com/wdl83/ws2812b_strip
