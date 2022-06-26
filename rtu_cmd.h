@@ -33,7 +33,7 @@ typedef union
 
 typedef struct
 {
-    rtu_memory_t rtu_memory;
+    rtu_memory_header_t header;
     uint16_t fw_checksum;
     struct
     {
@@ -61,39 +61,39 @@ typedef struct
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, fw_checksum,
-    sizeof(rtu_memory_t) + 0);
+    sizeof(rtu_memory_header_t) + 0);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, tmr1_A,
-    sizeof(rtu_memory_t) + 3);
+    sizeof(rtu_memory_header_t) + 3);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, heartbeat,
-    sizeof(rtu_memory_t) + 5);
+    sizeof(rtu_memory_header_t) + 5);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, heartbeat_low,
-    sizeof(rtu_memory_t) + 5);
+    sizeof(rtu_memory_header_t) + 5);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, heartbeat_high,
-    sizeof(rtu_memory_t) + 6);
+    sizeof(rtu_memory_header_t) + 6);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, rtu_err_reboot_threashold,
-    sizeof(rtu_memory_t) + 7);
+    sizeof(rtu_memory_header_t) + 7);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, ws2812b_mmap,
-    sizeof(rtu_memory_t) + 8);
+    sizeof(rtu_memory_header_t) + 8);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, fx_mmap,
-    sizeof(rtu_memory_t) + 8 + 17 + STRIP_LENGTH * 3);
+    sizeof(rtu_memory_header_t) + 8 + 17 + STRIP_LENGTH * 3);
 
 STATIC_ASSERT_STRUCT_OFFSET(
     rtu_memory_fields_t, tlog,
-    sizeof(rtu_memory_t) + 8 + 17 + STRIP_LENGTH * 3
+    sizeof(rtu_memory_header_t) + 8 + 17 + STRIP_LENGTH * 3
     /* max(fire, torch, noise) */
     + 12 + STRIP_LENGTH + (STRIP_LENGTH >> 2));
 

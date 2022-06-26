@@ -34,9 +34,9 @@ void rtu_memory_fields_clear(rtu_memory_fields_t *fields)
 
 void rtu_memory_fields_init(rtu_memory_fields_t *fields)
 {
-    fields->rtu_memory.addr_begin = RTU_ADDR_BASE;
-    fields->rtu_memory.addr_end =
-        RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_t);
+    fields->header.addr_begin = RTU_ADDR_BASE;
+    fields->header.addr_end =
+        RTU_ADDR_BASE + sizeof(rtu_memory_fields_t) - sizeof(rtu_memory_header_t);
 
     fields->fw_checksum = calc_fw_checksum();
     fields->strip_updated = 1;
@@ -127,7 +127,7 @@ uint8_t *rtu_pdu_cb(
 
     dst_begin =
         rtu_memory_pdu_cb(
-            &rtu_memory_fields->rtu_memory,
+            (rtu_memory_t *)&rtu_memory_fields->header,
             fcode,
             begin + sizeof(addr), end,
             curr,
