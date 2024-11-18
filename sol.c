@@ -147,7 +147,7 @@ void handle_rtu_state(
     modbus_rtu_state_t *state,
     rtu_memory_fields_t *rtu_memory_fields)
 {
-    if(rtu_memory_fields->rtu_err_reboot_threashold > state->err_cntr) return;
+    if(rtu_memory_fields->rtu_err_reboot_threashold > state->stats.err_cntr) return;
     fixed__.app_reset_code.curr = RESET_CODE_RTU_ERROR;
     watchdog_disable();
     watchdog_enable(WATCHDOG_TIMEOUT_16ms);
@@ -268,7 +268,7 @@ void main(void)
     TLOG_XPRINT16(
         "TLOG",
         STRUCT_OFFSET(rtu_memory_fields_t, tlog)
-        - STRUCT_OFFSET(rtu_memory_fields_t, rtu_memory));
+        - STRUCT_OFFSET(rtu_memory_fields_t, header));
 
     ws2812b_init(&rtu_memory_fields.ws2812b_mmap.strip);
     modbus_rtu_impl(
