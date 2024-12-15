@@ -260,7 +260,7 @@ void main(void)
 
     rtu_memory_fields_clear(&rtu_memory_fields);
     rtu_memory_fields_init(&rtu_memory_fields);
-    tlog_init(rtu_memory_fields.tlog);
+    tlog_init(rtu_memory_fields.tlog, TLOG_SIZE);
 
     TLOG_XPRINT2x8("MCUSR|RSTCNT", fixed__.mcusr, fixed__.reset_counter);
     TLOG_XPRINT2x8("B|ARSTC", fixed__.bootloader_reset_code.value, fixed__.app_reset_code.value);
